@@ -1,19 +1,14 @@
-FROM alpine:latest
+FROM debian:11
 
-RUN apk update && apk add --no-cache nginx openssl
+# Actualizar y agregar dependencias de NGINX y OpenSSL
+RUN apt-get update && apt-get install -y \
+    nginx openssl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Crear certificado SSL autofirmado
-RUN mkdir -p /etc/nginx/ssl && \
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/nginx/ssl/server.key -out /etc/nginx/ssl/server.crt \
-    -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
-
+# Copiar el archivo de configuración de NGINX
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Crear directorio para logs y procesos
-RUN mkdir -p /run/nginx
-
-EXPOSE 443
+# Asegurarse de que el contenedor se ejecute correctamente
+EXPOSE 443 80
 
 CMD ["nginx", "-g", "daemon off;"]
-
