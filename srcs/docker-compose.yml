@@ -1,0 +1,61 @@
+version: "3"
+
+services:
+  nginx:
+    build: ./srcs/nginx
+    image: nginx
+    ports:
+      - "8443:443"  # Cambiado de 443 a 8443 para evitar problemas de privilegios
+      - "8080:80"   # Cambiado de 80 a 8080 por la misma razón
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception
+    restart: always
+
+  mariadb:
+    container_name: mariadb
+    build:
+      context: ./srcs/mariadb
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    restart: always
+    networks:
+      - inception
+    env_file:
+      - .env
+    restart: always
+
+  wordpress:
+    container_name: wordpress
+    build: ./srcs/wordpress
+    image: wordpress
+    depends_on:
+      - mariadb
+    volumes:
+      - wordpress_data:/var/www/html
+    restart: always
+    networks:
+      - inception
+    env_file:
+      - .env
+
+volumes:
+    mariadb_data:
+        driver: local
+        driver_opts:
+            type: none
+            device: /home/aaespino/data/mysql
+            o: bind
+
+    wordpress_data:
+        driver: local
+        driver_opts:
+            type: none
+            device: /home/aaespino/data/wordpress
+            o: bind
+
+networks:
+  inception:
+    name: aaespino
+    driver: bridge

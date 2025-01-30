@@ -5,4 +5,3 @@ define('DB_PASSWORD', 'password');
 define('DB_HOST', 'mariadb');
 define('WP_DEBUG', false);
 ?>
-
