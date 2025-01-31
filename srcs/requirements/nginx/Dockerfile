@@ -1,17 +1,22 @@
-FROM debian:11
+FROM debian:bullseye
 
-# Actualizar y agregar dependencias de NGINX y OpenSSL
-RUN apt-get update
-RUN apt-get install -y nginx openssl
+# Instalar dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    nginx \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crear certificado SSL autofirmado
+RUN mkdir -p /etc/nginx/ssl && \
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/nginx/ssl/nginx.key \
+    -out /etc/nginx/ssl/nginx.crt \
+    -subj "/C=ES/ST=Madrid/L=Madrid/O=42/OU=42/CN=aaespino.42.fr"
+
+# Copiar configuración de nginx desde tu directorio
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 443
 
-# Copiar el archivo de configuración de NGINX
-COPY ./conf/default /etc/nginx/sites-enabled/default
-COPY ./tools/nginx_start.sh /var/www
-
-RUN chmod +x /var/www/nginx_start.sh
-
-ENTRYPOINT [ "var/www/nginx_start.sh" ]
-
+# Comando para iniciar nginx
 CMD ["nginx", "-g", "daemon off;"]

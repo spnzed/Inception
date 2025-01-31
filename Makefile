@@ -1,16 +1,23 @@
-all: build up
+NAME = inception
+DOCKER_COMPOSE = docker-compose -f srcs/docker-compose.yml
 
-build:
-	docker-compose build
+all: up
 
 up:
-	docker-compose up -d
+	@mkdir -p /home/aaespino/data/wordpress
+	@mkdir -p /home/aaespino/data/mariadb
+	$(DOCKER_COMPOSE) up -d --build
 
 down:
-	docker-compose down
+	$(DOCKER_COMPOSE) down
 
-clean:
-	docker system prune -a -f
+clean: down
+	docker system prune -a --force
 
-re: down clean all
+fclean: clean
+	sudo rm -rf /home/aaespino/data/wordpress/*
+	sudo rm -rf /home/aaespino/data/mariadb/*
 
+re: fclean all
+
+.PHONY: all up down clean fclean re
