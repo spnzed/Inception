@@ -1,70 +1,43 @@
-version: '3'
-
 services:
-  mariadb:
-    container_name: mariadb
-    build: 
-      context: requirements/mariadb
-      dockerfile: Dockerfile
-    volumes:
-      - mariadb:/var/lib/mysql
-    networks:
-      - inception
-    restart: always
-    env_file: .env
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-
-  wordpress:
-    container_name: wordpress
-    build:
-      context: requirements/wordpress
-      dockerfile: Dockerfile
-    volumes:
-      - wordpress:/var/www/html
-    networks:
-      - inception
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    restart: always
-    env_file: .env
-    ports:
-    - "80:80"
-
   nginx:
+    image: nginx
     container_name: nginx
-    build:
-      context: requirements/nginx
-      dockerfile: Dockerfile
-    volumes:
-      - wordpress:/var/www/html
-    networks:
-      - inception
+    build: ./requirements/nginx
+    ports:
+      - 443:443
     depends_on:
       - wordpress
-    ports:
-      - "8443:443"
+    volumes:
+      - wordpress_data:/var/www/html
+    env_file:
+      - .env
     restart: always
-    env_file: .env
+    networks:
+      - inception
 
-networks:
-  inception:
-    driver: bridge
-
-volumes:
-  wordpress:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${HOME}/data/wordpress
   mariadb:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${HOME}/data/mariadb
+    image: mariadb
+    container_name: mariadb
+    build:
+      context: ./requirements/mariadb
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - inception
+
+  wordpress:
+    image: wordpress
+    container_name: wordpress
+    build: ./requirements/wordpress
+    depends_on:
+      - mariadb    
+    volumes:
+      - wordpress_data:/var/www/html
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - inception
