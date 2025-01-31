@@ -1,23 +1,26 @@
-NAME = inception
-DOCKER_COMPOSE = docker-compose -f srcs/docker-compose.yml
-
-all: up
-
-up:
-	@mkdir -p /home/aaespino/data/wordpress
-	@mkdir -p /home/aaespino/data/mariadb
-	$(DOCKER_COMPOSE) up -d --build
-
+all:	vol
+	@docker-compose -f ./srcs/docker-compose.yml up -d --build
 down:
-	$(DOCKER_COMPOSE) down
+	@docker-compose -f ./srcs/docker-compose.yml down
 
-clean: down
-	docker system prune -a --force
+vol:
+	sudo mkdir -p ${HOME}/data/mysql
+	sudo mkdir -p ${HOME}/data/wordpress
+	sudo chmod -R 777 ${HOME}/data/
+	sudo chown -R $(USER) $(HOME)/data/
 
-fclean: clean
-	sudo rm -rf /home/aaespino/data/wordpress/*
-	sudo rm -rf /home/aaespino/data/mariadb/*
+clean:
+	sudo rm -rf ${HOME}/data/mysql/*
+	sudo rm -rf ${HOME}/data/wordpress/*
+	@docker stop $$(docker ps -qa);
+	@docker rm $$(docker ps -qa);
+	@docker rmi -f $$(docker images -qa);
+	@docker volume rm $$(docker volume ls -q);
+	@docker network rm inception;
 
-re: fclean all
+status:
+	@docker ps -a
 
-.PHONY: all up down clean fclean re
+re: clean all
+
+.PHONY: all down clean re status vol
