@@ -32,7 +32,7 @@ services:
   wordpress:
     image: wordpress
     container_name: wordpress
-    build: ./requirements/wordpress
+    build: ./requirements/wordpress  # Esto es solo si tienes un Dockerfile personalizado, si no, lo puedes quitar
     depends_on:
       - mariadb    
     volumes:
@@ -40,6 +40,8 @@ services:
     env_file:
       - .env
     restart: always
+    ports:
+      - "9000:9000"  # Exponer el puerto 9000 para que puedas acceder a WordPress desde fuera del contenedor
     networks:
       - inception
 
