@@ -1,25 +1,23 @@
-#! /bin/bash
+# Debian image
+FROM debian:11.7
 
-# Start mysql
-mysqld_safe &
+# Update and upgrade to successfully install mariadb
+RUN apt update -y && apt upgrade -y
 
-sleep 10;
+# Install mariadb-server
+RUN apt-get install mariadb-server -y
 
-# Root conf
-# Create the user if it doesn't exist
-mysql -e "CREATE USER IF NOT EXISTS '${MYSQL_ROOT_USER}'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
-# Grant all privileges to the root user
-mysql -e "GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ROOT_USER}'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' WITH GRANT OPTION;"
-# Refresh all so that MySQL takes it into account
-mysql -e "FLUSH PRIVILEGES;"
+# Copy the .cnf file we create to the path mariadb will be
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
+# Run the command to create the folder and permissions to the users
+RUN mkdir -p /var/run/mysqld && chown -R mysql:mysql /var/run/mysqld && chmod 777 /var/run/mysqld
 
-# Create a DB if does not exist. Named after the variable MYSQL_DATABASE in .env file
-mysql -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;"
-# Give rights to the user
-mysql -e "GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO \`${MYSQL_USER}\`@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-# Refresh all so that MySQL takes it into account
-mysql -e "FLUSH PRIVILEGES;"
+# Copy of the script that configs the users and db
+COPY --chmod=755 tools/mariadb.sh /usr/local/bin/mariadb.sh
 
-# Keep the MySQL process running in the foreground
-wait
+# Open the port 3306 for connectivity with WP & PHP
+EXPOSE 3306
+
+# Everytime the container is started will execute the script
+ENTRYPOINT [ "/usr/local/bin/mariadb.sh" ]
