@@ -8,7 +8,7 @@ RUN apt update -y && apt upgrade -y
 RUN apt-get install mariadb-server -y
 
 # Copy the .cnf file we create to the path mariadb will be
-COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+COPY conf/server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
 # Run the command to create the folder and permissions to the users
 RUN mkdir -p /var/run/mysqld && chown -R mysql:mysql /var/run/mysqld && chmod 777 /var/run/mysqld
