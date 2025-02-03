@@ -8,7 +8,8 @@ services:
     depends_on:
       - wordpress
     volumes:
-      - wordpress_data:/var/www/html
+      # - wordpress_data:/var/www/html
+      - ./nginx/ssl:/etc/nginx/ssl
     env_file:
       - .env
     restart: always
