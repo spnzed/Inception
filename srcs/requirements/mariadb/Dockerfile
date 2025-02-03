@@ -1,18 +1,25 @@
-FROM debian:bullseye
+#! /bin/bash
 
-RUN apt-get update && apt-get install -y \
-    mariadb-server \
-    && rm -rf /var/lib/apt/lists/*
+# Start mysql
+mysqld_safe &
 
-# Configuración para permitir conexiones remotas
-RUN mkdir -p /var/run/mysqld \
-    && chown -R mysql:mysql /var/run/mysqld \
-    && chmod 777 /var/run/mysqld
+sleep 10;
 
-COPY ./conf/server.cnf /etc/mysql/mariadb.conf.d/
-COPY ./tools/mariadb.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/mariadb.sh
+# Root conf
+# Create the user if it doesn't exist
+mysql -e "CREATE USER IF NOT EXISTS '${MYSQL_ROOT_USER}'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
+# Grant all privileges to the root user
+mysql -e "GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_ROOT_USER}'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' WITH GRANT OPTION;"
+# Refresh all so that MySQL takes it into account
+mysql -e "FLUSH PRIVILEGES;"
 
-EXPOSE 3306
 
-CMD ["mariadb.sh"]
+# Create a DB if does not exist. Named after the variable MYSQL_DATABASE in .env file
+mysql -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;"
+# Give rights to the user
+mysql -e "GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO \`${MYSQL_USER}\`@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+# Refresh all so that MySQL takes it into account
+mysql -e "FLUSH PRIVILEGES;"
+
+# Keep the MySQL process running in the foreground
+wait
