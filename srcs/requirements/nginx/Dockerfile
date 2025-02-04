@@ -17,8 +17,8 @@ RUN mkdir -p /etc/nginx/ssl
 #Install OpenSSl. Tool for SSL certificate management/creation.
 RUN apt install openssl
 # Create SSL certificate with OpenSSL and pre-fill the -keyout option
-RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt \
-    -keyout /etc/nginx/ssl/inception.key \
+RUN openssl req -x509 -nodes -out /etc/nginx/ssl/nginx.crt \
+    -keyout /etc/nginx/ssl/nginx.key \
     -subj "/C=ES/ST=CAT/L=Barcelona/O=42/OU=42/CN=${DOMAIN_NAME}/UID=aaespino"
 
 # Create folder to store NGINX config
