@@ -18,8 +18,8 @@ RUN mkdir -p /etc/nginx/ssl
 RUN apt install openssl
 # Create SSL certificate with OpenSSL and pre-fill the -keyout option
 RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt \
-	-keyout /etc/nginx/ssl/inception.key \
-	-subj "/C=ES/ST=CAT/L=Barcelona/O=42/OU=42/CN=$aaespino.42.fr/UID=$aaespino"
+    -keyout /etc/nginx/ssl/inception.key \
+    -subj "/C=ES/ST=CAT/L=Barcelona/O=42/OU=42/CN=${DOMAIN_NAME}/UID=aaespino"
 
 # Create folder to store NGINX config
 RUN mkdir -p /run/nginx

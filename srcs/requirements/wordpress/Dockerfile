@@ -15,6 +15,9 @@ COPY conf/www.conf /etc/php/7.4/fpm/pool.d/
 RUN mkdir -p /run/php
 RUN chmod 755 /run/php
 
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 755 /var/www/html
+
 COPY ./tools/wp.sh /usr/local/bin/wp.sh
 RUN chmod +x /usr/local/bin/wp.sh
 

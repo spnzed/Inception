@@ -11,4 +11,4 @@ else
 	wp theme install astra --activate --allow-root
 fi
 
-/usr/sbin/php-fpm7.4 -F;
+exec php-fpm7.4 -F
