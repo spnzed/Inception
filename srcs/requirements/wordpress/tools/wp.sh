@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# This script is used to install wordpress and create a user
+# The script will check if wordpress is already installed or not
+# If not installed, it will download wordpress, create a config file, install wordpress and create a user
 if [ -f ./wp-config.php ]
 then
 	echo "Wordpress already exists"
