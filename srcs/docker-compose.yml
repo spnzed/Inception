@@ -42,37 +42,6 @@ services:
     networks:
       - inception
 
-# Bonus
-  ftp:
-    image: ftp
-    container_name: ftp
-    build:
-      context: ./requirements/bonus/ftp
-    ports:
-      - "21:21"
-      - "30000-30100:30000-30100"
-    depends_on:
-      - wordpress
-    env_file:
-      - .env
-    volumes:
-      - wordpress_data:/var/www/hmtl
-    restart: always
-    networks:
-      - inception
-
-  redis:
-    image: redis
-    container_name: redis
-    build: ./requirements/bonus/redis
-    depends_on:
-      - wordpress
-    ports:
-      - '6379:6379'
-    restart: always
-    networks:
-      - inception
-
 # Network
 networks:
   inception:
