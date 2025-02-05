@@ -19,5 +19,5 @@ COPY --chmod=755 tools/mariadb.sh /usr/local/bin/mariadb.sh
 # Open the port 3306 for connectivity with WP & PHP
 EXPOSE 3306
 
-# Everytime the container is started will execute the script
+# Everytime the container is started will execute the  script
 ENTRYPOINT [ "/usr/local/bin/mariadb.sh" ]
