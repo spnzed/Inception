@@ -3,12 +3,6 @@ all:	vol
 down:
 	@docker-compose -f ./srcs/docker-compose.yml down
 
-vol:
-	sudo mkdir -p ${HOME}/data/mysql
-	sudo mkdir -p ${HOME}/data/wordpress
-	sudo chmod -R 777 ${HOME}/data/
-	sudo chown -R $(USER) $(HOME)/data/
-
 clean:
 	sudo rm -rf ${HOME}/data/mysql/*
 	sudo rm -rf ${HOME}/data/wordpress/*
