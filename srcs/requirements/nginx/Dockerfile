@@ -1,37 +1,24 @@
-# Use Debian base image
+# Usamos una imagen base de Debian
 FROM debian:11.7
 
-# Update and upgrade in order to install nginx
-RUN apt upgrade -y && apt update -y
+# Actualizamos los repositorios e instalamos Nginx y OpenSSL
+RUN apt-get update && apt-get install -y nginx openssl
 
-# Install nginx
-RUN apt install -y nginx
-
-# Access the container terminal
-RUN apt install vim -y
-RUN apt install curl -y
-
-# TSL
-# Create a folder to store the certificate
-RUN mkdir -p /etc/nginx/ssl
-#Install OpenSSl. Tool for SSL certificate management/creation.
-RUN apt install openssl
-# Create SSL certificate with OpenSSL and pre-fill the -keyout option
-RUN openssl req -x509 -nodes -out /etc/nginx/ssl/nginx.crt \
-    -keyout /etc/nginx/ssl/nginx.key \
-    -subj "/C=ES/ST=CAT/L=Barcelona/O=42/OU=42/CN=${DOMAIN_NAME}/UID=aaespino"
-
-# Create folder to store NGINX config
-RUN mkdir -p /run/nginx
-# Take base NGINX conf file and modify with our ./conf/nginx.conf
-COPY ./conf/nginx.conf /etc/nginx/nginx.conf
-
-#Ensure that we'll have te rights of the web root directory
-RUN chmod 755 /var/www/html
-RUN chown -R www-data:www-data /var/www/html
-
-# Open port 443 for connection
+# Exponemos el puerto 443 (HTTPS)
 EXPOSE 443
 
-# Launch NGINX
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+# Copiamos los archivos de configuración necesarios al contenedor
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
+COPY ./conf/default /etc/nginx/sites-enabled/default
+
+# Copiamos el script para configurar nginx en el contenedor
+COPY ./tools/nginx_www.sh /var/www/nginx_www.sh
+
+# Damos permisos de ejecución al script
+RUN chmod +x /var/www/nginx_www.sh
+
+# Definimos el script como el punto de entrada
+ENTRYPOINT ["/var/www/nginx_www.sh"]
+
+# CMD para iniciar nginx con la configuración adecuada
+CMD ["nginx", "-g", "daemon off;"]
