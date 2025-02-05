@@ -9,7 +9,7 @@ services:
       - wordpress
     volumes:
       - wordpress_data:/var/www/html
-      - $(HOME)/data/nginx/ssl:/etc/nginx/ssl
+      - ${HOME}/data/nginx/ssl:/etc/nginx/ssl
     env_file:
       - .env
     restart: always
