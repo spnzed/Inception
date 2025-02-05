@@ -19,7 +19,7 @@ RUN apt install openssl
 # Create SSL certificate with OpenSSL and pre-fill the -keyout option
 RUN openssl req -x509 -nodes -out /etc/nginx/ssl/nginx.crt \
 	-keyout /etc/nginx/ssl/nginx.key \
-	-subj "/C=ES/ST=CAT/L=Barcelona/O=42/OU=42/CN=${HOME}.42.fr/UID=${HOME}"
+	-subj "/C=ES/ST=CAT/L=Barcelona/O=42/OU=42/CN=aaespino.42.fr/UID=aaespino"
 
 # Create folder to store NGINX config
 RUN mkdir -p /run/nginx
