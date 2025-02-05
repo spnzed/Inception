@@ -1,6 +1,5 @@
 services:
   nginx:
-  nginx:
     image: nginx:1.18.0
     container_name: nginx
     restart: always
