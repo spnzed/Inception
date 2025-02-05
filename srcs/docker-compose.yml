@@ -1,15 +1,14 @@
 services:
   nginx:
-    image: nginx:1.18.0
+    image: nginx
     container_name: nginx
     build: ./requirements/nginx
     ports:
-      - "443:443"
+      - 443:443
     depends_on:
       - wordpress
     volumes:
       - wordpress_data:/var/www/html
-      - ./requirements/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     env_file:
       - .env
     restart: always
@@ -19,7 +18,7 @@ services:
   mariadb:
     image: mariadb
     container_name: mariadb
-    build: 
+    build:
       context: ./requirements/mariadb
     volumes:
       - mariadb_data:/var/lib/mysql
@@ -30,30 +29,57 @@ services:
       - inception
 
   wordpress:
-    image: wordpress:cli
+    image: wordpress
     container_name: wordpress
     build: ./requirements/wordpress
     depends_on:
-      - mariadb
+      - mariadb    
     volumes:
       - wordpress_data:/var/www/html
     env_file:
       - .env
-    entrypoint: >
-      sh -c "
-      until wp db check --allow-root; do sleep 2; done &&
-      wp config create --dbname=${WORDPRESS_DB_NAME} --dbuser=${WORDPRESS_DB_USER} --dbpass=${WORDPRESS_DB_PASSWORD} --dbhost=${WORDPRESS_DB_HOST} --allow-root &&
-      wp core install --url=https://${DOMAIN_NAME} --title='${WORDPRESS_TITLE}' --admin_user=${WORDPRESS_ADMIN} --admin_password=${WORDPRESS_ADMIN_PASS} --admin_email=${WORDPRESS_ADMIN_EMAIL} --skip-email --allow-root
-      "
     restart: always
     networks:
       - inception
 
+# Bonus
+  ftp:
+    image: ftp
+    container_name: ftp
+    build:
+      context: ./requirements/bonus/ftp
+    ports:
+      - "21:21"
+      - "30000-30100:30000-30100"
+    depends_on:
+      - wordpress
+    env_file:
+      - .env
+    volumes:
+      - wordpress_data:/var/www/hmtl
+    restart: always
+    networks:
+      - inception
+
+  redis:
+    image: redis
+    container_name: redis
+    build: ./requirements/bonus/redis
+    depends_on:
+      - wordpress
+    ports:
+      - '6379:6379'
+    restart: always
+    networks:
+      - inception
+
+# Network
 networks:
   inception:
     name: inception
     driver: bridge
 
+# Volumes
 volumes:
   mariadb_data:
     driver: local
