@@ -24,7 +24,7 @@ RUN openssl req -x509 -nodes -out /etc/nginx/ssl/nginx.crt \
 # Create folder to store NGINX config
 RUN mkdir -p /run/nginx
 # Take base NGINX conf file and modify with our ./conf/nginx.conf
-COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 
 #Ensure that we'll have te rights of the web root directory
 RUN chmod 755 /var/www/html
