@@ -1,64 +1,66 @@
+version: '3.8'
+
 services:
   nginx:
-    image: nginx
-    container_name: nginx
-    build: ./requirements/nginx
+    image: nginx  # Use the official Nginx image
+    container_name: nginx  # Name the container "nginx"
+    build: ./requirements/nginx  # Build Nginx from the specified directory
     ports:
-      - 443:443
+      - 443:443  # Expose HTTPS port (443) to the host
     depends_on:
-      - wordpress
+      - wordpress  # Ensure WordPress starts before Nginx
     volumes:
-      - wordpress_data:/var/www/html
+      - wordpress_data:/var/www/html  # Mount shared volume for WordPress files
     env_file:
-      - .env
-    restart: always
+      - .env  # Load environment variables from .env file
+    restart: always  # Restart the container automatically if it stops
     networks:
-      - inception
+      - inception  # Connect to the custom "inception" network
 
   mariadb:
-    image: mariadb
-    container_name: mariadb
+    image: mariadb  # Use the official MariaDB image
+    container_name: mariadb  # Name the container "mariadb"
     build:
-      context: ./requirements/mariadb
+      context: ./requirements/mariadb  # Build MariaDB from the specified directory
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql  # Persistent storage for database data
     env_file:
-      - .env
-    restart: always
+      - .env  # Load environment variables from .env file (e.g., DB credentials)
+    restart: always  # Restart automatically if the container stops
     networks:
-      - inception
+      - inception  # Connect to the custom "inception" network
 
   wordpress:
-    image: wordpress
-    container_name: wordpress
-    build: ./requirements/wordpress
+    image: wordpress  # Use the official WordPress image
+    container_name: wordpress  # Name the container "wordpress"
+    build: ./requirements/wordpress  # Build WordPress from the specified directory
     depends_on:
-      - mariadb    
+      - mariadb  # Ensure MariaDB starts before WordPress
     volumes:
-      - wordpress_data:/var/www/html
+      - wordpress_data:/var/www/html  # Mount shared volume for WordPress files
     env_file:
-      - .env
-    restart: always
+      - .env  # Load environment variables from .env file
+    restart: always  # Restart automatically if the container stops
     networks:
-      - inception
+      - inception  # Connect to the custom "inception" network
 
-# Network
+# Define a custom network to allow communication between containers
 networks:
   inception:
-    name: inception
-    driver: bridge
+    name: inception  # Custom network name
+    driver: bridge  # Use bridge networking for container communication
 
-# Volumes
+# Define persistent storage volumes for database and WordPress data
 volumes:
   mariadb_data:
-    driver: local
+    driver: local  # Use local storage
     driver_opts:
       type: none
-      device: ${HOME}/data/mysql
+      device: ${HOME}/data/mysql  # Bind-mount directory for MariaDB data
       o: bind
   wordpress_data:
-    driver: local
+    driver: local  # Use local storage
     driver_opts:
       type: none
-      device: ${HOME}/data/wordpress
+      device: ${HOME}/data/wordpress  # Bind-mount directory for WordPress files
       o: bind
